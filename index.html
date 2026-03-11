@@ -267,32 +267,36 @@
 
 
 <script>
-// 杀掉 Service Worker + 清缓存
+// 1. 终极雷达：只要代码出错，立刻红字显示在屏幕上！再也不用猜黑屏原因！
+window.onerror = function(msg, url, line, col, error) {
+  var errDiv = document.getElementById('debug-error');
+  if(!errDiv) {
+    errDiv = document.createElement('div');
+    errDiv.id = 'debug-error';
+    errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(220,0,0,0.9);color:white;z-index:999999;padding:20px;font-size:14px;line-height:1.5;box-sizing:border-box;';
+    document.body.appendChild(errDiv);
+  }
+  errDiv.innerHTML += '<strong>啊！代码报错了：</strong><br>' + msg + '<br>位置：' + (url ? url.split('/').pop() : '未知') + ' 第 ' + line + ' 行<hr>';
+};
+
+// 2. 清缓存 + 强制防黑屏兜底
 (function(){
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations().then(function(regs){
       regs.forEach(function(r){ r.unregister(); });
     });
   }
-  if('caches' in window){
-    caches.keys().then(function(keys){
-      keys.forEach(function(k){ caches.delete(k); });
-    });
-  }
-
-  // 5秒兜底防黑屏
   setTimeout(function(){
     var sp=document.getElementById('splash');
     var de=document.getElementById('desktop');
     if(sp) sp.style.display='none';
     if(de) de.classList.add('show');
-  }, 5000);
+    if(!document.body.style.background) document.body.style.background = '#ffffff';
+  }, 4000);
 })();
 </script>
 
-<!-- <script src="script.js?v=fix0311b"></script> -->
-<!-- <script src="bugfix.js?v=fix0311b"></script> -->
-
+<script src="script.js?v=final001"></script>
 
 </body>
 </html>
