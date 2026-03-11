@@ -1,3 +1,12 @@
+console.log('[bugfix2] loaded final0404');
+setTimeout(function(){
+  var tag = document.createElement('div');
+  tag.textContent = 'bugfix2 已加载';
+  tag.style.cssText = 'position:fixed;right:10px;top:10px;z-index:999999;background:#2e7d32;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;';
+  document.body.appendChild(tag);
+  setTimeout(function(){ tag.remove(); }, 2000);
+}, 0);
+
 (function(){
   var tag = document.createElement('div');
   tag.textContent = 'bugfix2 v3 已加载';
