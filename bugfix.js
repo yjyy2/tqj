@@ -724,3 +724,41 @@
     };
   }
 })();
+
+// ===== [完美收官补丁2：选项卡移到底部] =====
+(function moveTabsToBottom(){
+  const st = document.createElement('style');
+  st.textContent = `
+    /* 让聊天页的三大块重新排队：顶栏第1，内容第2，选项卡跑到第3（最底下） */
+    #app-chat {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    #app-chat .chat-topbar { 
+      order: 1 !important; 
+    }
+    #app-chat .chat-tab-content { 
+      order: 2 !important; 
+      flex: 1 !important; /* 内容区占满中间所有空间 */
+    }
+    
+    /* 底部选项卡的美颜和适配 */
+    #app-chat .chat-tabs { 
+      order: 3 !important; 
+      border-bottom: none !important; /* 去掉以前的下边框 */
+      border-top: 1px solid rgba(255,255,255,0.3) !important; /* 加上高级的上边框 */
+      padding-top: 8px !important;
+      /* 核心：自动识别苹果底部白条，给它留出安全距离，完美贴合！ */
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+      box-shadow: 0 -2px 16px rgba(0,0,0,0.04) !important;
+      flex-shrink: 0 !important;
+    }
+    
+    /* 夜间模式的深色适配 */
+    body.dark-mode #app-chat .chat-tabs {
+      border-top-color: rgba(255,255,255,0.08) !important;
+      box-shadow: 0 -2px 16px rgba(0,0,0,0.2) !important;
+    }
+  `;
+  document.head.appendChild(st);
+})();
