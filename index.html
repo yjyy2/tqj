@@ -266,56 +266,35 @@
 <input type="file" id="file-picker" accept="image/*" style="display:none;">
 
 <script>
-(function(){
-  // ===== 错误面板 =====
-  window.addEventListener('error', function(e){
-    var box = document.getElementById('__errbox');
-    if(!box){
-      box = document.createElement('div');
-      box.id='__errbox';
-      box.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999999;background:#b00020;color:#fff;padding:8px 10px;font-size:12px;line-height:1.5;max-height:45vh;overflow:auto;';
-      document.body.appendChild(box);
-    }
-    var src = e.filename ? e.filename.split('/').pop() : 'inline';
-    box.innerHTML += '<div>❌ ' + e.message + ' @ ' + src + ':' + e.lineno + '</div>';
-  });
+window.onerror = function(msg, url, line, col, error) {
+  var errDiv = document.getElementById('debug-error');
+  if(!errDiv) {
+    errDiv = document.createElement('div');
+    errDiv.id = 'debug-error';
+    errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(220,0,0,0.9);color:white;z-index:999999;padding:20px;font-size:14px;line-height:1.5;box-sizing:border-box;';
+    document.body.appendChild(errDiv);
+  }
+  errDiv.innerHTML += '<strong>报错：</strong>' + msg + '<br>位置：' + (url ? url.split('/').pop() : '') + ' 第 ' + line + ' 行<hr>';
+};
 
-  // ===== 只做“超时兜底”，不再立刻掐断开屏 =====
-  function forceShow(){
-    var sp = document.getElementById('splash');
-    var de = document.getElementById('desktop');
-    if(sp) sp.style.display = 'none';
-    if(de){
-      de.classList.add('show');
-      de.style.display = 'block';
-      de.style.opacity = '1';
-      de.style.visibility = 'visible';
-    }
+(function(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){ r.unregister(); });
+    });
   }
   setTimeout(function(){
-    var de = document.getElementById('desktop');
-    if(!de || !de.classList.contains('show')) forceShow();
-  }, 8000); // 8秒才兜底，给开屏完整播放时间
-
-  // ===== GitHub Pages 绝对路径加载，避免“有源码但加载失败” =====
-  var seg = location.pathname.split('/').filter(Boolean);
-  var REPO_BASE = (location.hostname.endsWith('github.io') && seg.length > 0)
-    ? ('/' + seg[0] + '/')
-    : '/';
-
-  <script>
-  setTimeout(function(){
-    var de = document.getElementById('desktop');
-    var sp = document.getElementById('splash');
-    if (!de || !de.classList.contains('show')) {
-      if (sp) sp.style.display = 'none';
-      if (de) de.classList.add('show');
-    }
-  }, 8000);
+    var sp=document.getElementById('splash');
+    var de=document.getElementById('desktop');
+    if(sp) sp.style.display='none';
+    if(de) de.classList.add('show');
+    if(!document.body.style.background) document.body.style.background = '#ffffff';
+  }, 4000);
+})();
 </script>
 
-<script src="./script.js?v=final0406"></script>
-<script src="./bugfix3.js?v=final0406"></script>
+<script src="script.js?v=final002"></script>
+<script src="bugfix.js?v=final002"></script>
 
 </body>
 </html>
