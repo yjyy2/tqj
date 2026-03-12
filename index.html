@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script>
+  // 只要链接里带了 clear=1，就只清空本网站的本地数据
+  if(window.location.search.indexOf('clear=1') !== -1) {
+    localStorage.clear();
+    alert('宝宝，天晴机的坏数据已经清理干净啦！');
+    window.location.href = window.location.href.split('?')[0];
+  }
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
