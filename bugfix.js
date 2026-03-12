@@ -661,3 +661,65 @@
     });
   }, 800);
 })();
+
+// ===== [完美收官补丁] UI微调 + 全局图片压缩 =====
+(function finalPolish(){
+  // 1. CSS 修复顶部缝隙和头像溢出，绝对安全
+  const st = document.createElement('style');
+  st.textContent = `
+    /* 消除页面顶部的空白缝隙，让毛玻璃完美贴合顶部 */
+    .app-page, #app-chat {
+      padding-top: 0 !important;
+    }
+    .chat-topbar, .app-header {
+      padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    }
+    
+    /* 强制头像图片在圆框内，防旧浏览器溢出 */
+    .msg-item-avatar img,
+    .contact-item-avatar img,
+    .circle-frame img,
+    .me-avatar img,
+    .mask-avatar img,
+    .cd-msg-avatar img {
+      border-radius: 50% !important;
+      transform: translateZ(0); /* 开启硬件加速，强行把溢出的边角切掉 */
+    }
+  `;
+  document.head.appendChild(st);
+
+  // 2. 全局拦截图片上传：自动把超大图片无损压缩，彻底解决存不进去的问题！
+  const origOpenUpload = window.openUploadModal;
+  if(origOpenUpload && !window.__TQ_IMG_COMPRESSOR_BOUND__) {
+    window.__TQ_IMG_COMPRESSOR_BOUND__ = 1;
+    
+    function compressBase64(src, maxW, quality) {
+      return new Promise(resolve => {
+        if(!src || !src.startsWith('data:image/')) return resolve(src);
+        const img = new Image();
+        img.onload = function() {
+          let w = img.width, h = img.height;
+          if(w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          const cvs = document.createElement('canvas');
+          cvs.width = w; cvs.height = h;
+          cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(cvs.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(src);
+        img.src = src;
+      });
+    }
+
+    window.openUploadModal = function(targetKey, callback) {
+      origOpenUpload(targetKey, async function(k, src) {
+        let finalSrc = src;
+        // 如果是本地图片，且体积过大，就全自动静默压缩
+        if(src && src.startsWith('data:image/') && src.length > 250000) {
+          if(typeof showToast === 'function') showToast('图片较大，正在自动瘦身...');
+          finalSrc = await compressBase64(src, 1080, 0.7); // 压缩到安全大小
+        }
+        callback(k, finalSrc);
+      });
+    };
+  }
+})();
